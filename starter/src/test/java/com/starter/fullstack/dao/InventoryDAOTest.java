@@ -48,6 +48,11 @@ public class InventoryDAOTest {
     inventoryNull.setProductType(PRODUCT_TYPE);
     Assert.assertFalse(this.inventoryDAO.create(inventoryNull).getId() == null);
 
+    Inventory inventoryEx = new Inventory();
+    inventoryEx.setId("asdf");
+    inventoryEx.setName(NAME);
+    inventoryEx.setProductType(PRODUCT_TYPE);
+    Assert.assertFalse(this.inventoryDAO.create(inventoryNull).getId().equals("asdf"));
   }
   /**
    * Test Find All method.
