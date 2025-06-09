@@ -40,6 +40,15 @@ public class InventoryDAOTest {
     this.mongoTemplate.dropCollection(Inventory.class);
   }
 
+
+  @Test
+  public void createInventory() {
+    Inventory inventoryNull = new Inventory();
+    inventoryNull.setName(NAME);
+    inventoryNull.setProductType(PRODUCT_TYPE);
+    Assert.assertFalse(this.inventoryDAO.create(inventoryNull).getId() == null);
+
+  }
   /**
    * Test Find All method.
    */
