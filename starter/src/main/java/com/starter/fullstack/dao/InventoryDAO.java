@@ -53,9 +53,7 @@ public class InventoryDAO {
    * @return Created/Updated Inventory.
    */
   public Inventory create(Inventory inventory) {
-    // TODO
     inventory.setId(null);
-    //return (mongoTemplate.getId().equals(null) ?  mongoTemplate.insert(inventory) : null);
     return mongoTemplate.insert(inventory);
   }
 
@@ -85,10 +83,8 @@ public class InventoryDAO {
    * @param id Id of Inventory.
    * @return Deleted Inventory.
    */
-  public Inventory delete(String id) {
-    // TODO
+  public Optional<Inventory> delete(String id) {
     Query query = Query.query(Criteria.where("_id").is(id));
-
-    return this.mongoTemplate.findAndRemove(query, Inventory.class);
+    return Optional.ofNullable(mongoTemplate.findAndRemove(query, Inventory.class));
   }
 }

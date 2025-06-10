@@ -15,7 +15,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,12 +34,16 @@ public class InventoryControllerTest {
   @Autowired
   private ObjectMapper objectMapper;
 
-  private InventoryDAO inventorydao;
+  private InventoryDAO inventoryDAO;
   private Inventory inventory;
+
+  private static final String NAME = "TEST";
+  private static final String PRODUCT_TYPE = "TESTPRODUCT";
+  private static final String ID = "id";
 
   @Before
   public void setup() throws Throwable {
-    this.inventorydao = new InventoryDAO(this.mongoTemplate);
+    this.inventoryDAO = new InventoryDAO(this.mongoTemplate);
   }
 
   @After
@@ -51,31 +54,30 @@ public class InventoryControllerTest {
   @Test
   public void create() throws Throwable {
     this.inventory = new Inventory();
-    this.inventory.setName("Test");
-    this.inventory.setProductType("TestProduct");
-    this.mockMvc.perform(post("/inventory/create")
+    this.inventory.setName(NAME);
+    this.inventory.setProductType(PRODUCT_TYPE);
+    this.mockMvc.perform(post("/inventory")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
         .content(this.objectMapper.writeValueAsString(this.inventory)))
       .andExpect(status().isOk());
-    int i = inventorydao.findAll().size();
-    Assert.assertEquals(1, inventorydao.findAll().size());
+    int i = inventoryDAO.findAll().size();
+    Assert.assertEquals(1, inventoryDAO.findAll().size());
   }
 
   @Test
   public void delete_test() throws Throwable {
     this.inventory = new Inventory();
-    this.inventory.setName("Test");
-    this.inventory.setProductType("TestProduct");
-    int i = inventorydao.findAll().size();
-    String id = this.inventorydao.create(this.inventory).getId();
-    int size = inventorydao.findAll().size();
-    this.mockMvc.perform(delete("/inventory/delete")
+    this.inventory.setName(NAME);
+    this.inventory.setProductType(PRODUCT_TYPE);
+    String id = this.inventoryDAO.create(this.inventory).getId();
+    int size = inventoryDAO.findAll().size();
+    this.mockMvc.perform(delete("/inventory")
         .accept(MediaType.APPLICATION_JSON)
         .contentType(MediaType.APPLICATION_JSON)
-        .param("id", id))
+        .param(ID, id))
       .andExpect(status().isOk());
 
-    Assert.assertEquals(size - 1, inventorydao.findAll().size());
+    Assert.assertEquals(size - 1, inventoryDAO.findAll().size());
   }
 }

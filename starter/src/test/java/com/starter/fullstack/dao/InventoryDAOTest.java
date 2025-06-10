@@ -29,6 +29,7 @@ public class InventoryDAOTest {
   private InventoryDAO inventoryDAO;
   private static final String NAME = "Amber";
   private static final String PRODUCT_TYPE = "hops";
+  private static final String ID = "ASDF";
 
   @Before
   public void setup() {
@@ -46,13 +47,13 @@ public class InventoryDAOTest {
     Inventory inventoryNull = new Inventory();
     inventoryNull.setName(NAME);
     inventoryNull.setProductType(PRODUCT_TYPE);
-    Assert.assertFalse(this.inventoryDAO.create(inventoryNull).getId() == null);
+    Assert.assertNotEquals(null, this.inventoryDAO.create(inventoryNull).getId());
 
     Inventory inventoryEx = new Inventory();
-    inventoryEx.setId("asdf");
+    inventoryEx.setId(ID);
     inventoryEx.setName(NAME);
     inventoryEx.setProductType(PRODUCT_TYPE);
-    Assert.assertFalse(this.inventoryDAO.create(inventoryEx).getId().equals("asdf"));
+    Assert.assertNotEquals(ID, this.inventoryDAO.create(inventoryEx).getId());
   }
   /**
    * Test Find All method.
@@ -74,8 +75,8 @@ public class InventoryDAOTest {
     inventory.setProductType(PRODUCT_TYPE);
 
     String id = this.inventoryDAO.create(inventory).getId();
-    Assert.assertEquals(2, this.inventoryDAO.findAll().size());
-    Assert.assertEquals(id, this.inventoryDAO.delete(id).getId());
-    Assert.assertEquals(1, this.inventoryDAO.findAll().size());
+    int size = this.inventoryDAO.findAll().size();
+    this.inventoryDAO.delete(id).ifPresent(invID -> Assert.assertEquals(invID.getId(), id));
+    Assert.assertEquals(size - 1, this.inventoryDAO.findAll().size());
   }
 }
