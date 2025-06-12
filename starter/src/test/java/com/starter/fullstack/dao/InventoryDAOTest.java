@@ -29,6 +29,7 @@ public class InventoryDAOTest {
   private InventoryDAO inventoryDAO;
   private static final String NAME = "Amber";
   private static final String PRODUCT_TYPE = "hops";
+  private static final String ID = "ASDF";
 
   @Before
   public void setup() {
@@ -40,6 +41,20 @@ public class InventoryDAOTest {
     this.mongoTemplate.dropCollection(Inventory.class);
   }
 
+
+  @Test
+  public void createInventory() {
+    Inventory inventoryNull = new Inventory();
+    inventoryNull.setName(NAME);
+    inventoryNull.setProductType(PRODUCT_TYPE);
+    Assert.assertNotEquals(null, this.inventoryDAO.create(inventoryNull).getId());
+
+    Inventory inventoryEx = new Inventory();
+    inventoryEx.setId(ID);
+    inventoryEx.setName(NAME);
+    inventoryEx.setProductType(PRODUCT_TYPE);
+    Assert.assertNotEquals(ID, this.inventoryDAO.create(inventoryEx).getId());
+  }
   /**
    * Test Find All method.
    */
@@ -51,5 +66,17 @@ public class InventoryDAOTest {
     this.mongoTemplate.save(inventory);
     List<Inventory> actualInventory = this.inventoryDAO.findAll();
     Assert.assertFalse(actualInventory.isEmpty());
+  }
+
+  @Test
+  public void deleteInventory() {
+    Inventory inventory = new Inventory();
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+
+    String id = this.inventoryDAO.create(inventory).getId();
+    int size = this.inventoryDAO.findAll().size();
+    this.inventoryDAO.delete(id).ifPresent(invID -> Assert.assertEquals(invID.getId(), id));
+    Assert.assertEquals(size - 1, this.inventoryDAO.findAll().size());
   }
 }
