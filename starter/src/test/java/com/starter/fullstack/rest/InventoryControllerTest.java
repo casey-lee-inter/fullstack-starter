@@ -3,6 +3,8 @@ package com.starter.fullstack.rest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starter.fullstack.api.Inventory;
 import com.starter.fullstack.dao.InventoryDAO;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,17 +69,20 @@ public class InventoryControllerTest {
 
   @Test
   public void delete_test() throws Throwable {
-    this.inventory = new Inventory();
-    this.inventory.setName(NAME);
-    this.inventory.setProductType(PRODUCT_TYPE);
-    String id = this.inventoryDAO.create(this.inventory).getId();
+    List<String> test = new ArrayList<String>();
+    for (int i = 0 ; i < 3 ; i++) {
+      this.inventory = new Inventory();
+      this.inventory.setName(NAME);
+      this.inventory.setProductType(PRODUCT_TYPE);
+      test.add(this.inventoryDAO.create(this.inventory).getId());
+    }
     int size = inventoryDAO.findAll().size();
     this.mockMvc.perform(delete("/inventory")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .param(ID, id))
-      .andExpect(status().isOk());
-
-    Assert.assertEquals(size - 1, inventoryDAO.findAll().size());
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(this.objectMapper.writeValueAsString(test)))
+            .andExpect(status().isOk());
+    System.out.println(this.objectMapper.writeValueAsString(test));
+    Assert.assertEquals(size - 3, inventoryDAO.findAll().size());
   }
 }
