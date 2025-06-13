@@ -32,13 +32,17 @@ const useStyles = makeStyles((theme) => ({
 
 const normalizeInventory = (inventory) => inventory.map(inv => ({
   ...inv,
-  //unitOfMeasurement: MeasurementUnits[inv.unitOfMeasurement].name,
-  bestBeforeDate: moment(inv.bestBeforeDate).format('MM/DD/YYYY')
+  unitOfMeasurement: MeasurementUnits[inv.unitOfMeasurement]?.name || 'Unknown',
+  bestBeforeDate: moment(inv.bestBeforeDate, 'YYYY-MM-DD').format('MM/DD/YYYY')
 }))
+
+const formatDate = (date) => {
+  if (!date) return null
+  return new Date(date).toISOString()
+}
 
 const headCells = [
   { id: 'name', align: 'left', disablePadding: true, label: 'Name' },
-  { id: 'id', align: 'right', disablePadding: false, label: 'ID' },
   { id: 'productType', align: 'right', disablePadding: false, label: 'Product' },
   { id: 'description', align: 'right', disablePadding: false, label: 'Description' },
   { id: 'amount', align: 'right', disablePadding: false, label: 'Amount' },
@@ -135,6 +139,14 @@ const InventoryLayout = (props) => {
     setSelected(newSelected)
   }
 
+  const handleSubmit = (values) => {
+    const formattedValues = {
+      ...values,
+      bestBeforeDate: formatDate(values.bestBeforeDate)
+    }
+    saveInventory(formattedValues)
+  }
+
   const isSelected = (id) => selected.indexOf(id) !== -1
 
   return (
@@ -145,6 +157,7 @@ const InventoryLayout = (props) => {
           title='Inventory'
           toggleCreate={toggleCreate}
           toggleDelete={toggleDelete}
+          toggleEdit={toggleEdit}
         />
         <TableContainer component={Paper}>
           <Table size='small' stickyHeader>
@@ -173,10 +186,11 @@ const InventoryLayout = (props) => {
                       selected={isItemSelected}
                     >
                       <TableCell padding='checkbox'>
-                        <Checkbox checked={isItemSelected}/>
+                        <Checkbox
+                          checked={isItemSelected}
+                        />
                       </TableCell>
                       <TableCell padding='none'>{inv.name}</TableCell>
-                      <TableCell align='right'>{inv.id}</TableCell>
                       <TableCell align='right'>{inv.productType}</TableCell>
                       <TableCell align='right'>{inv.description}</TableCell>
                       <TableCell align='right'>{inv.amount}</TableCell>
@@ -194,8 +208,17 @@ const InventoryLayout = (props) => {
           productMap={products}
           isDialogOpen={isCreateOpen}
           handleDialog= {toggleModals}
-          handleInventory={saveInventory}
+          handleInventory={handleSubmit}
           initialValues={{}}
+        />
+        <InventoryFormModal
+          title='Edit'
+          formName='inventoryEdit'
+          productMap={products}
+          isDialogOpen={isEditOpen}
+          handleDialog= {toggleModals}
+          handleInventory={handleSubmit}
+          initialValues={inventory?.find(item => item.id === selected[0]) || {}}
         />
         <InventoryDeleteModal
           isDialogOpen={isDeleteOpen}

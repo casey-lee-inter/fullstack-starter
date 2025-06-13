@@ -20,30 +20,35 @@ class InventoryFormModal extends React.Component {
   render() {
     const now = new Date()
     const tdate = now.toISOString().split('T')[0]
+    const formatDateOnly = (date) => {
+      if (!date) return ''
+      const dateIn = new Date(date)
+      return dateIn.toISOString().split('T')[0]
+    }
     const units = [
       {
         value: 'cup',
-        label: 'c'
+        label: 'CUP'
       },
       {
         value: 'gallon',
-        label: 'gal'
+        label: 'GALLON'
       },
       {
         value: 'ounces',
-        label: 'oz'
+        label: 'OUNCE'
       },
       {
         value: 'pints',
-        label: 'pt'
+        label: 'PINT'
       },
       {
         value: 'pounds',
-        label: 'lb'
+        label: 'POUND'
       },
       {
         value: 'quarts',
-        label: 'qt'
+        label: 'QUART'
       },
     ]
     const {
@@ -62,7 +67,12 @@ class InventoryFormModal extends React.Component {
         onClose={() => { handleDialog(false) }}
       >
         <Formik
-          initialValues={initialValues}
+          initialValues={{
+            ...initialValues,
+            averagePrice: initialValues?.averagePrice ? initialValues.averagePrice : 0,
+            amount: initialValues?.amount ? initialValues.amount : 0,
+            bestBeforeDate: initialValues?.bestBeforeDate ? initialValues.bestBeforeDate.split('T')[0] : tdate,
+          }}
           onSubmit={values => {
             handleInventory(values)
             handleDialog(true)
@@ -171,7 +181,6 @@ class InventoryFormModal extends React.Component {
                       name='bestBeforeDate'
                       label='Best-Before'
                       type='date'
-                      defaultValue={tdate}
                       component={TextField}
                     />
                   </Grid>
