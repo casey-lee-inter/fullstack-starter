@@ -30,6 +30,8 @@ public class InventoryDAOTest {
   private static final String NAME = "Amber";
   private static final String PRODUCT_TYPE = "hops";
   private static final String ID = "ASDF";
+  private static final String NEWNAME = "Bob";
+  private static final String NEW_PT = "wine";
 
   @Before
   public void setup() {
@@ -66,6 +68,20 @@ public class InventoryDAOTest {
     this.mongoTemplate.save(inventory);
     List<Inventory> actualInventory = this.inventoryDAO.findAll();
     Assert.assertFalse(actualInventory.isEmpty());
+  }
+
+  @Test
+  public void updateInventory() {
+    Inventory inventory = new Inventory();
+    inventory.setName(NAME);
+    inventory.setProductType(PRODUCT_TYPE);
+    Inventory update_inventory = new Inventory();
+    update_inventory.setName(NEWNAME);
+    update_inventory.setProductType(NEW_PT);
+    String id = this.inventoryDAO.create(inventory).getId();
+    this.inventoryDAO.update(id, update_inventory)
+            .ifPresent(invName -> Assert.assertEquals(NEWNAME, invName.getName()));
+
   }
 
   @Test

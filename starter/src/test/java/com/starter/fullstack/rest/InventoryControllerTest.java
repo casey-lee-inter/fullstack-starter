@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -41,6 +42,8 @@ public class InventoryControllerTest {
 
   private static final String NAME = "TEST";
   private static final String PRODUCT_TYPE = "TESTPRODUCT";
+  private static final String NEWNAME = "Bob";
+  private static final String NEW_PT = "wine";
   private static final String ID = "id";
 
   @Before
@@ -65,6 +68,26 @@ public class InventoryControllerTest {
       .andExpect(status().isOk());
     int i = inventoryDAO.findAll().size();
     Assert.assertEquals(1, inventoryDAO.findAll().size());
+  }
+
+  @Test
+  public void update() throws Throwable {
+    int size = inventoryDAO.findAll().size();
+    this.inventory = new Inventory();
+    this.inventory.setName(NAME);
+    this.inventory.setProductType(PRODUCT_TYPE);
+    String firstID = this.inventoryDAO.create(this.inventory).getId();
+
+    this.inventory.setName(NEWNAME);
+    this.inventory.setProductType(NEW_PT);
+    this.inventory.setId(firstID);
+
+    this.mockMvc.perform(put("/inventory")
+        .accept(MediaType.APPLICATION_JSON)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(this.objectMapper.writeValueAsString(this.inventory)))
+      .andExpect(status().isOk());
+    Assert.assertEquals(NEWNAME, inventoryDAO.findAll().get(0).getName());
   }
 
   @Test
