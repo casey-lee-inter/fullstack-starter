@@ -53,10 +53,6 @@ public class InventoryDAO {
    * @return Created/Updated Inventory.
    */
   public Inventory create(Inventory inventory) {
-    Query query = Query.query(Criteria.where("_id").is(inventory.getId()));
-    if (mongoTemplate.findOne(query, Inventory.class) != null) {
-      return mongoTemplate.save(inventory);
-    }
     inventory.setId(null);
     return mongoTemplate.insert(inventory);
   }
@@ -78,7 +74,10 @@ public class InventoryDAO {
    * @return Updated Inventory.
    */
   public Optional<Inventory> update(String id, Inventory inventory) {
-    // TODO
+    Query query = Query.query(Criteria.where("_id").is(inventory.getId()));
+    if (mongoTemplate.findOne(query, Inventory.class) != null) {
+      return Optional.of(mongoTemplate.save(inventory));
+    }
     return Optional.empty();
   }
 

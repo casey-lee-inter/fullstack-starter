@@ -58,6 +58,7 @@ const InventoryLayout = (props) => {
   const products = useSelector(state => state.products.all)
   const isFetched = useSelector(state => state.inventory.fetched && state.products.fetched)
   const saveInventory = useCallback(inventory => { dispatch(inventoryDuck.saveInventory(inventory)) }, [dispatch])
+  const updateInventory = useCallback(inventory => { dispatch(inventoryDuck.updateInventory(inventory)) }, [dispatch])
   const removeInventory = useCallback(ids => { dispatch(inventoryDuck.removeInventory(ids)) }, [dispatch])
 
   useEffect(() => {
@@ -70,35 +71,14 @@ const InventoryLayout = (props) => {
   const [isCreateOpen, setCreateOpen] = React.useState(false)
   const [isEditOpen, setEditOpen] = React.useState(false)
   const [isDeleteOpen, setDeleteOpen] = React.useState(false)
-  const toggleCreate = () => {
-    setCreateOpen(true)
-  }
-  const toggleEdit = () => {
-    setEditOpen(true)
-  }
-  const toggleDelete = () => {
-    setDeleteOpen(true)
-  }
+
   const toggleModals = (resetChecked) => {
     setCreateOpen(false)
     setDeleteOpen(false)
     setEditOpen(false)
     if (resetChecked) {
-      setChecked([])
+      setSelected([])
     }
-  }
-
-  const [checked, setChecked] = React.useState([])
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value)
-    const newChecked = [...checked]
-
-    if (currentIndex === -1) {
-      newChecked.push(value)
-    } else {
-      newChecked.splice(currentIndex, 1)
-    }
-    setChecked(newChecked)
   }
 
   const normalizedInventory = normalizeInventory(inventory)
@@ -139,12 +119,21 @@ const InventoryLayout = (props) => {
     setSelected(newSelected)
   }
 
-  const handleSubmit = (values) => {
+
+  const handleInventorySubmit = (values) => {
     const formattedValues = {
       ...values,
       bestBeforeDate: formatDate(values.bestBeforeDate)
     }
     saveInventory(formattedValues)
+  }
+
+  const handleInventoryUpdate = (values) => {
+    const formattedValues = {
+      ...values,
+      bestBeforeDate: formatDate(values.bestBeforeDate)
+    }
+    updateInventory(formattedValues)
   }
 
   const isSelected = (id) => selected.indexOf(id) !== -1
@@ -155,9 +144,9 @@ const InventoryLayout = (props) => {
         <EnhancedTableToolbar
           numSelected={selected.length}
           title='Inventory'
-          toggleCreate={toggleCreate}
-          toggleDelete={toggleDelete}
-          toggleEdit={toggleEdit}
+          toggleCreate={() =>setCreateOpen(true)}
+          toggleDelete={() => setDeleteOpen(true)}
+          toggleEdit={() => setEditOpen(true)}
         />
         <TableContainer component={Paper}>
           <Table size='small' stickyHeader>
@@ -208,8 +197,12 @@ const InventoryLayout = (props) => {
           productMap={products}
           isDialogOpen={isCreateOpen}
           handleDialog= {toggleModals}
-          handleInventory={handleSubmit}
-          initialValues={{}}
+          handleInventory={handleInventorySubmit}
+          initialValues={{
+            averagePrice: 0,
+            amount: 0,
+            bestBeforeDate: new Date().toISOString().split('T')[0]
+          }}
         />
         <InventoryFormModal
           title='Edit'
@@ -217,7 +210,7 @@ const InventoryLayout = (props) => {
           productMap={products}
           isDialogOpen={isEditOpen}
           handleDialog= {toggleModals}
-          handleInventory={handleSubmit}
+          handleInventory={handleInventoryUpdate}
           initialValues={inventory?.find(item => item.id === selected[0]) || {}}
         />
         <InventoryDeleteModal

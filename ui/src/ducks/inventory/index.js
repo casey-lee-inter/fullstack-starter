@@ -6,7 +6,8 @@ const actions = {
   INVENTORY_GET_ALL_PENDING: 'inventory/get_all_PENDING',
   INVENTORY_SAVE: 'inventory/save',
   INVENTORY_REFRESH: 'inventory/refresh',
-  INVENTORY_DELETE: 'inventory/delete'
+  INVENTORY_DELETE: 'inventory/delete',
+  INVENTORY_UPDATE: 'inventory/update'
 }
 
 export let defaultState = {
@@ -35,6 +36,21 @@ export const saveInventory = createAction(actions.INVENTORY_SAVE, (inventory) =>
         dispatch(refreshInventory(invs))
       })
   }
+)
+
+export const updateInventory = createAction(actions.INVENTORY_UPDATE, (inventory) =>
+  (dispatch, getState, config) => axios
+    .put(`${config.restAPIUrl}/inventory`, inventory)
+    .then((suc) => {
+      const invs = []
+      getState().inventory.all.forEach(inv => {
+        if (inv.id !== suc.data.id) {
+          invs.push(inv)
+        }
+      })
+      invs.push(suc.data)
+      dispatch(refreshInventory(invs))
+    })
 )
 
 export const removeInventory = createAction(actions.INVENTORY_DELETE, (ids) =>
